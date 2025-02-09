@@ -1,0 +1,17 @@
+<block> <parameters> {
+    key1 = value1 #arguement
+    key2 = value2 
+}
+
+resource block
+
+resource "local_file" "pet" {
+    filename = "/root/pets.txt
+    content = "we love pets!"
+}
+
+
+resource "aws_s3_bucket" "data" {
+    bucket = "webserver-bucket"
+    acl = "private"
+}

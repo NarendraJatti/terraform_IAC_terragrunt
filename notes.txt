@@ -1,13 +1,61 @@
+commands
+=========
+terraform show
+
 Types of IAC 
 =======
 Ansible:configuration management
 Terraform: provisioning tool
 docker: server templating
 
+terraform>>immutable 
+terraform latest version>Version: 1.10.5(jan'25)
+
+HCL:Hashicorp language>declarative language
+
 Cloudformation>>AWS specific>not cloud agnostic
 
+desired state(code/tf files) > current state(deployed/actual)
+
+
+Resources >>Terraform objects
 
 idempotent:only desired changes are applied,doesn't recreate Resources after re-run of the same 
 script
 
 docker-immutable-recreates containers for the changes applied
+
+
+Terraform core is responsible for reading the configuration files (written in HCL) and generating the execution plan to achieve the desired state of your infrastructure.
+It interacts with various plugins known as providers that are responsible for managing different types of resources.
+Terraform core uses State to keep track of the current state of the infrastructure. It compares the desired state (defined in the code) with the current state and determines what needs to be created, updated, or deleted
+
+
+Providers are the plugins that interact with APIs of different cloud platforms (like AWS, Azure) or services (like MySQL, Kubernetes).
+For AWS, Terraform uses the AWS Provider, which contains the logic to communicate with AWS APIs and create/manage resources like EC2, S3, RDS, etc
+
+State Management:
+
+Terraform keeps track of the infrastructure's current state in a state file (terraform.tfstate).
+This state file is crucial as Terraform uses it to detect any changes between your configuration and the actual resources.
+The state can be stored locally or remotely (like in an S3 bucket) for collaboration.
+
+
+API Calls:
+
+Terraform uses the AWS SDK (software development kit) in the AWS provider to make API calls to AWS services. These API requests are what actually provision, update, or destroy infrastructure components.
+
+Modules:
+
+A module in Terraform is a container for multiple resources that are used together. Modules are a way to organize and reuse configuration by grouping related resources.
+You can create modules to encapsulate common configurations and reuse them across different environments or projects.
+
+Data Sources:
+
+Data sources allow you to fetch data from external sources (like AWS services) and use it in your Terraform configurations. This data doesn't create resources but retrieves information to use in your setup.
+
+Outputs:
+
+Outputs define the information that should be returned after Terraform has run. This is helpful for exposing details like IP addresses or IDs of created resources.
+
+
