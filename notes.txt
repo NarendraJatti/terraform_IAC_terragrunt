@@ -1,7 +1,17 @@
+terraform>>immutable >>recreates resources after changing values
 commands
 =========
 terraform show
+.terraform/providers >>plugins/providers installed
 
+terraform apply -var "filename =/root/pet.txt" -var "length =2"
+export TF_VAR_file ='/root/pets.txt'
+terraform apply
+
+terraform apply -var-file variables.tfvars
+ 
+
+configuration directory>>tf files exits
 Types of IAC 
 =======
 Ansible:configuration management
@@ -58,4 +68,12 @@ Outputs:
 
 Outputs define the information that should be returned after Terraform has run. This is helpful for exposing details like IP addresses or IDs of created resources.
 
+Restoring from Backup:
+
+If something goes wrong with your terraform.tfstate file, you can restore from the backup (terraform.tfstate.backup).
+By simply renaming the backup file to terraform.tfstate (or copying its content), you can restore the state to the point where it was when the backup was taken.
+mv terraform.tfstate.backup terraform.tfstate
+
+
+Terraform does use a caching mechanism to avoid the reinstallation of previously used providers and plugins. This helps speed up the process of initializing and running Terraform commands, especially if the environment hasn’t changed.
 
