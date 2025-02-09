@@ -1,0 +1,13 @@
+Types of IAC 
+=======
+Ansible:configuration management
+Terraform: provisioning tool
+docker: server templating
+
+Cloudformation>>AWS specific>not cloud agnostic
+
+
+idempotent:only desired changes are applied,doesn't recreate Resources after re-run of the same 
+script
+
+docker-immutable-recreates containers for the changes applied
