@@ -1,0 +1,67 @@
+refer bug.tf file for more clarity
+====================
+
+In Terraform, sensitive attributes (like private keys, passwords, or tokens) are marked as sensitive to avoid leaking them in logs or outputs. Terraform tracks sensitive data internally to ensure it's not exposed unintentionally. However, handling sensitive attributes across different resources can sometimes cause issues, especially when there's a combination of dynamic dependencies and resource transitions (like creation and destruction of resources).
+
+In the case you've shared, here's a breakdown of what is happening:
+
+1. Resource Creation and Sensitive Attribute Issue
+The tls_private_key resource generates an RSA private key (private_key_pem). This value is marked as sensitive because it's cryptographic material.
+The local_file resource writes this sensitive private key to the file /tmp/.pki/private_key.pem. This means that Terraform must handle the sensitive private key attribute from the tls_private_key and write it securely to disk.
+The tls_cert_request resource tries to read the private key from this file using file("/tmp/.pki/private_key.pem"), but this file contains a sensitive attribute (private_key_pem).
+2. Inconsistent Final Plan
+The error happens when Terraform applies changes in phases:
+
+Terraform first destroys existing resources (local_file.key_data and tls_private_key.private_key).
+It then creates new resources (tls_private_key.private_key and local_file.key_data again).
+While creating the new tls_private_key resource, Terraform learns the new private key value and updates the plan.
+The tls_cert_request tries to reference the private key through the file (/tmp/.pki/private_key.pem), but because it's dealing with a sensitive attribute, Terraform encounters an inconsistency.
+Terraform expects the sensitive value (private_key_pem) to be consistent across the resources, but:
+
+When reading the private key from the file, Terraform loses track of its sensitivity.
+Sensitive attributes are tracked differently by Terraform compared to non-sensitive ones (like file content), and when Terraform tries to evaluate the tls_cert_request resource after applying changes, the sensitive private_key_pem value doesn’t match what it expects.
+3. The Core Problem
+The sensitive attribute transition happens when:
+
+tls_private_key.private_key generates the private key (private_key_pem).
+local_file.key_data writes the private key to a file.
+tls_cert_request reads the private key from that file (through file() function).
+Because sensitive data isn't just plain data, Terraform internally ensures that sensitive attributes are handled securely. But in this case, when the tls_cert_request reads the key from the file, Terraform expects the private key (private_key_pem) to maintain its sensitivity. Since the file() function treats the file content as non-sensitive, Terraform detects an inconsistency in the plan and throws the error.
+
+4. Why It Happens?
+Terraform doesn’t handle this transition of sensitive data between:
+
+Sensitive in memory (tls_private_key.private_key.private_key_pem).
+Non-sensitive file on disk (/tmp/.pki/private_key.pem).
+The file system treats the private key content as a regular string, while Terraform wants to keep it marked as sensitive. This inconsistency between sensitive and non-sensitive handling is the root cause of the error.
+
+Fix: Pass the Sensitive Value Directly
+By passing the private_key_pem directly from tls_private_key to tls_cert_request (as in the fix I suggested earlier), you avoid using the file-based intermediate step, ensuring Terraform treats the private_key_pem as sensitive throughout the entire process, without any inconsistency.
+
+To summarize:
+
+The inconsistency occurs because Terraform expects sensitive data to remain consistently marked as sensitive when passing between resources.
+When sensitive data is written to a file and then read back, Terraform can’t ensure it’s handled securely, leading to an "inconsistent final plan" error.
+The solution is to pass the sensitive attribute (private_key_pem) directly between resources without relying on file reads and writes.
+
+
+Sensitive Variables: Terraform allows you to mark certain variables as sensitive. When a variable is marked as sensitive, Terraform does not display the value in the console or logs when the plan is executed.
+
+variable "db_password" {
+  description = "The password for the RDS instance"
+  type        = string
+  sensitive   = true
+}
+Sensitive Variables: Terraform allows you to mark certain variables as sensitive. When a variable is marked as sensitive, Terraform does not display the value in the console or logs when the plan is executed.
+
+
+State Files: Terraform state files store sensitive information such as secrets, credentials, and private keys. By default, state files are stored in plain text, so it’s essential to use secure methods to store and manage state files, such as:
+
+Encrypting state files if stored remotely (e.g., AWS S3 with server-side encryption).
+Limiting access to state files via secure permissions.
+Using Terraform Cloud or another state management service with built-in encryption.
+
+est Practices for Sensitive Information:
+Use Remote Backends: Always use secure, encrypted remote backends (like AWS S3, Terraform Cloud) for your state files, especially when they contain sensitive information.
+Encrypt Data at Rest: When storing sensitive files like PEM keys, make sure to encrypt them on disk or use secure storage solutions.
+Use Secrets Management: If possible, use secrets management tools like AWS Secrets Manager, HashiCorp Vault, or similar to handle sensitive data instead of storing it in files.
