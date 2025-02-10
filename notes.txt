@@ -37,8 +37,22 @@ terraform fmt
 terraform show>>display current state of configuration/resources
 terraform show -json
 terraform providers 
+terraform state list>>less details
+terraform state list aws_s3_bucket.bucket-name
+terraform show>>more details
+terraform state pull >>for pulling remote state file
+terraform state rm aws_s3_bucket.bucket-name
 
+terraform taint aws_instance.web_server
+terraform untaint aws_instance.web_server
 terraform graph 
+
+export TF_LOG = <log_level>
+export TF_LOG = TRACE
+export TF_LOG_PATH =/tmp/folder
+unset TF_LOG_PATH
+
+head -10 filename
 
 
  we can use outputs as inputs for Ansible or shell scripts etc 
@@ -162,3 +176,57 @@ If you run terraform apply again, the file resource will be created as it does n
 meta arguments
 ===========
 depends_on ,lifecycle,count,for-each
+
+Use Terraform remote state locking (e.g., when storing state in S3 with DynamoDB for locking) to ensure only one operation can modify the state at a time.
+
+Use terraform state commands: Sometimes, state repair commands (like terraform state rm, terraform state pull, terraform state push) can help to clean up or update the corrupted state.
+Rebuild the state: If all else fails, you may have to manually rebuild the state file using terraform import to re-associate Terraform resources with the existing infrastructur
+
+terraform force-unlock LOCK_ID
+
+terraform state rm: Remove a resource from the Terraform state
+Use Case: This command is used when you need to remove a resource from the state file without affecting the actual infrastructure. It is useful when:
+
+A resource was manually deleted outside of Terraform (e.g., directly in the cloud provider's console).
+You want to stop managing a resource via Terraform but do not want to destroy it immediately.
+You want to re-import or rebuild a resource after fixing issues or corruption.
+Example:
+
+bash
+Copy
+Edit
+terraform state rm aws_instance.my_instance
+
+terraform state pull: Retrieve and display the current state
+Use Case: This command pulls the current state file and displays it in JSON format. It is useful for:
+
+Inspecting the current state file.
+Backing up the state manually.
+Debugging issues in the state file (e.g., identifying corruption or mismatches between the state and actual infrastructure).
+Working offline with the state (for example, to edit the state file locally before pushing changes).
+Example:
+
+bash
+Copy
+Edit
+terraform state pull > backup.tfstate
+
+terraform state push: Update the remote state file with local changes
+Use Case: This command is used to push a local state file to the remote backend (e.g., S3, Terraform Cloud, etc.) after making manual changes or recovering from corruption. It is useful when:
+
+You have manually fixed the state file (e.g., removed problematic entries) and need to push the corrected state to the remote backend.
+You need to recover from a corrupted or inconsistent state by restoring a backup or manually modified state file.
+You're transitioning the state from local to remote or moving between backends.
+Example:
+
+bash
+Copy
+Edit
+terraform state push backup.tfstate
+Scenario 4: Correcting state after a failed apply
+A Terraform apply was interrupted, leaving the state in an inconsistent state (e.g., some resources were created, others were not).
+Inspect the state using terraform state pull to see what resources were applied successfully.
+Optionally use terraform state rm to remove problematic or incomplete resources from the state.
+Re-run terraform apply to bring the infrastructure back into the desired state.
+
+Minio provides an S3-compatible API and allows us to configure the s3 backend in the same way as the actual S3 service in AWS Cloud.
