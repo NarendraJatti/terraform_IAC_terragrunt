@@ -1,0 +1,60 @@
+provider "aws" {
+  region  = lookup(var.region, terraform.workspace, "us-east-1")
+  access_key = terraform.workspace == "prod" ? var.prod_aws_access_key : var.non_prod_aws_access_key
+  secret_key = terraform.workspace == "prod" ? var.prod_aws_secret_key : var.non_prod_aws_secret_key
+}
+
+variable "prod_aws_access_key" {}
+variable "prod_aws_secret_key" {}
+variable "non_prod_aws_access_key" {}
+variable "non_prod_aws_secret_key" {}
+
+variable "vpcs" {
+  type = map
+  default = {
+    "prod"    = "vpc-prod-id"
+    "non-prod" = "vpc-non-prod-id"
+  }
+}
+
+variable "security_groups" {
+  type = map
+  default = {
+    "prod"    = "sg-prod-id"
+    "non-prod" = "sg-non-prod-id"
+  }
+}
+
+resource "aws_vpc" "selected_vpc" {
+  id = lookup(var.vpcs, terraform.workspace, "default-vpc-id")
+}
+
+resource "aws_security_group" "selected_sg" {
+  id = lookup(var.security_groups, terraform.workspace, "default-sg-id")
+}
+
+terraform apply -var-file=prod.tfvars
+terraform apply -var-file=non-prod.tfvars
+
+/terraform
+  /modules
+    /vpc
+      main.tf
+      outputs.tf
+      variables.tf
+    /security_groups
+      main.tf
+      outputs.tf
+      variables.tf
+  main.tf
+  variables.tf
+  terraform.tfvars
+  prod.tfvars
+  non-prod.tfvars
+  provider.tf
+
+prod_aws_access_key = "your-prod-access-key"
+prod_aws_secret_key = "your-prod-secret-key"
+
+non_prod_aws_access_key = "your-non-prod-access-key"
+non_prod_aws_secret_key = "your-non-prod-secret-key"

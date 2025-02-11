@@ -2,7 +2,23 @@ https://spacelift.io/blog/terraform-apply
 
 terraform resource block(s)
 
+workspaces in terraform
+===================
+think relation between terraform modules and workspaces 
+think??for prod env ,can you use modueles from NP env??
+
+tree folder-name 
+terrafom workspace new project-name 
+terrafom workspace select workspac-name 
+terraform workspace list 
+terraform.workspace>to get current workspace value 
+
+lookup(var.ami,terrafom.workspace)
+ami=lookup(var.ami,terrafom.workspace)
+
 terraform>>immutable >>recreates resources after changing values
+
+we can also create different workspaces for differtn enviromenmts 
 
 configuration files,configuration directory(tf files)
 
@@ -33,6 +49,8 @@ terraform apply -var-file variables.tfvars
 terraform validate 
 
 terraform fmt 
+
+terrafom console
 
 terraform show>>display current state of configuration/resources
 terraform show -json
@@ -230,3 +248,15 @@ Optionally use terraform state rm to remove problematic or incomplete resources 
 Re-run terraform apply to bring the infrastructure back into the desired state.
 
 Minio provides an S3-compatible API and allows us to configure the s3 backend in the same way as the actual S3 service in AWS Cloud.
+
+important>>terraform  plan or terraform plan -generate-config-out=ourfilename.tf 
+use this generated file as blueprint to recrate or reuse >>to import terraform resources
+after run terraform  plan or terraform plan -generate-config-out=ourfilename.tf 
+use this generated file as blueprint to recrate or reuse 
+alternative option is put dummy resouce block (to imported)-after run terraform import>>resource
+will be imported into terra statefile and then put this values in dummy resource block
+created with the attributes imported 
+
+terraform get >>to download module from registry 
+
+The .terraform.tfstate.lock.info file is a lock file created by Terraform to prevent concurrent operations that could corrupt the Terraform state file (terraform.tfstate). Here’s what it indicates and how it behaves:
