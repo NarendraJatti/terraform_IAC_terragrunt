@@ -260,3 +260,20 @@ created with the attributes imported
 terraform get >>to download module from registry 
 
 The .terraform.tfstate.lock.info file is a lock file created by Terraform to prevent concurrent operations that could corrupt the Terraform state file (terraform.tfstate). Here’s what it indicates and how it behaves:
+
+Run terraform show to see details of all the resources. To see just the list of resources from the state run terraform state list.
+
+aws ec2 create-key-pair --endpoint http://aws:4566 --key-name jade --query 'KeyMaterial' --output text > /root/terraform-projects/project-jade/jade.pem.
+
+aws ec2 describe-instances --endpoint http://aws:4566  --filters "Name=image-id,Values=ami-082b3eca746b12a89" | jq -r '.Reservations[].Instances[].InstanceId'
+
+i-77cdfd6a0d3a45cd9
+
+
+
+% terraform import aws_instance.jade i-ad62b33071bfd4bf3
+
+important
+========
+terraform import aws_instance.jade i-ad62b33071bfd4bf3>>this will import values in statefile
+but out plan config import >>will not update or refresh statfile
