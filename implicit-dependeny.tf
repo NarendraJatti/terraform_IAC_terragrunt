@@ -1,3 +1,6 @@
+#reference expression
+
+
 resource "local_file" "file" {
     filename = var.filename
     file_permission =  var.permission

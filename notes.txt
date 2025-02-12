@@ -2,6 +2,16 @@ https://spacelift.io/blog/terraform-apply
 
 terraform resource block(s)
 
+aws help
+aws iam help
+aws ec2 help
+aws iam create-user help 
+
+/root/.aws/config
+ /root/.aws/credential
+
+aws --endpoint http://aws:4566 iam list-users
+
 workspaces in terraform
 ===================
 think relation between terraform modules and workspaces 
@@ -276,4 +286,22 @@ i-77cdfd6a0d3a45cd9
 important
 ========
 terraform import aws_instance.jade i-ad62b33071bfd4bf3>>this will import values in statefile
-but out plan config import >>will not update or refresh statfile
+but out plan config import >>will not update or refresh statfile 
+
+packer can be used to build custom ami(instead of installing after resouce creation)
+
+important
+=======
+In this case, an instance will be modified, but nginx will not be installed. It is due to the fact that User data scripts only run at first boot whereas the instance modification causes a reboot.
+terraform apply -auto-approve
+
+important
+==========
+let's say you give a bucketname which not following bucketname rules,
+in terrform plan ,you do not get any erros,but in apply you will get erros
+
+terraform plan: This step does a dry run to calculate what resources need to be created or changed, but it doesn't interact with the actual AWS API for creating resources. Terraform can check if your configuration is syntactically correct, but it does not verify resource names or attempt to provision them during this phase.
+
+terraform apply: This step actually communicates with AWS to create or modify resources. During this interaction, the bucket name you specified (dc_is_better_than_marvel) is sent to AWS, and AWS validates whether it's a valid S3 bucket name.
+
+As explained in the Lab Demonstration video, we are making use of localstack as the mocking framework to work with AWS.

@@ -1,0 +1,20 @@
+Heredoc syntax in shell scripting is used to pass a multiline string to a command or create files with multiple lines of content. It's particularly useful when dealing with large chunks of text. The syntax for a heredoc looks like this:
+
+command <<DELIMITER
+your text or code block
+DELIMITER
+
+The DELIMITER can be any string, and << indicates the start of the heredoc. The text or code block continues until the closing DELIMITER is found on a line by itsel
+
+cat <<EOF
+This is an example
+of heredoc in shell scripting.
+EOF
+
+or
+=====
+cat <<MYDELIMITER
+This is some text.
+MYDELIMITER
+
+In general, EOF is used because it's easily understandable and less likely to clash with the content inside the heredoc.
