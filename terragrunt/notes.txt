@@ -1,0 +1,41 @@
+terragrunt
+
+thin wrapper built on teraform 
+works with specific versions of teraform
+
+terragrunt cache directory 
+
+terragrunt with aws
+================
+s3 backend remote file storage 
+
+
+terragrunt.hcl files
+root directory>terragrunt.hcl
+
+supporting files(can be written hcl or yaml )
+================
+region.hcl,account.hcl evn.hcl,common.hcl etc 
+
+global resources
+===========
+IAM,R53,waf,cloudfront,acm etc 
+
+
+commands
+=====
+terragrunt init
+terragrunt validate >>before plan or apply
+terragrunt apply,destroy
+terragrunt run-all
+ terragrunt hclfmt 
+
+
+ terragrunt functions
+ ===============
+ read_terragrunt_config
+ find_in_parent_folders
+ run_cmd
+ 
+
+
