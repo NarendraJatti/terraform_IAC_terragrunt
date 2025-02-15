@@ -1,3 +1,31 @@
+important
+===========
+https://spacelift.io/blog/terragrunt
+https://spacelift.io/blog/terragrunt-vs-terraform
+https://www.youtube.com/watch?v=XNpSSn-n-fw
+https://youtu.be/yduHaOj3XMg?si=4ZruzE7tN_M0sAvT
+https://github.com/harness-community/harnesscd-example-apps
+https://github.com/harness-community/gitops-terraform-onboarding>>good
+https://spacelift.io/blog/terraform-gitops>>good 
+
+
+Applying Grouped Modules Using terragrunt run-all
+Instead of applying individual modules one at a time, you can use Terragrunt's run-all commands to apply all modules in a directory, respecting their dependencies. Terragrunt will automatically figure out the correct order based on the dependency blocks and apply them in sequence.
+
+Terragrunt will apply modules in parallel if they don't have dependencies between them. For example, if you have a module for creating an S3 bucket and another for creating a VPC, and they are independent, they can be applied in parallel to speed up the process.
+
+Terraform workspaces offer a way to manage different environments (e.g., dev, prod, staging) by switching between workspaces, but this can be cumbersome and difficult to maintain for larger infrastructures.
+Terragrunt simplifies the management of multiple environments and modules by using a clear folder-based structure. You can have a separate Terragrunt configuration for each environment (e.g., terragrunt.hcl for dev, prod, etc.), which reduces the complexity of switching workspaces manually.
+
+Terraform workspaces don’t inherently enforce reuse of configuration code across different environments. As a result, you might have to duplicate a lot of Terraform code across environments, which is error-prone and hard to maintain.
+Terragrunt helps enforce DRY by allowing you to create reusable Terraform modules and share common configurations (e.g., backend configurations, provider settings) across environments using the include and dependencies blocks in terragrunt.hcl. This helps prevent code duplication.
+
+When switching between Terraform workspaces, users must manually ensure that remote state configurations (e.g., S3 backend) are correct and up to date. Misconfigurations can cause state management issues or corrupt state files.
+Terragrunt automates and standardizes remote state backend configuration by injecting backend settings dynamically based on the environment, ensuring that state is isolated and correctly configured for each environment without manual intervention.
+
+Terraform workspaces don't have an easy way to manage dependencies between modules in different workspaces (e.g., ensuring that resources in one workspace depend on resources in another).
+Terragrunt provides built-in dependency management, allowing you to explicitly declare dependencies between different modules and workspaces. It ensures proper order of execution and passing of outputs between modules.
+
 terragrunt run-all
 
 terragrunt run-all apply

@@ -1,0 +1,45 @@
+Weave GitOps,spacelift,terrform cloud,terrform,enterprrise,atlantis..have reconcilaton features for terrformm like argocd
+
+
+You don't need to include git clone in your buildspec.yml because the GitHub repository is already cloned into the container by CodePipelin
+
+1. Using CodePipeline with GitHub Source:
+If you're using AWS CodePipeline with GitHub as the source, the Terraform files from the GitHub repository will automatically be cloned as part of the pipeline's source stage. In this case, you do not need to manually clone the repository in your buildspec.yml. The files will already be in the working directory.
+
+2. Using Only CodeBuild (No CodePipeline):
+If you are using only CodeBuild (without CodePipeline), you'll need to clone the Terraform files from GitHub manually. You can do this in the install phase of the buildspec.yml using git clone. In this case, make sure your CodeBuild project has access to GitHub, either through a token or by using a public repository.
+
+CodeBuild Build Stage:
+
+The Build Stage in CodePipeline uses CodeBuild to run your Terraform commands (like terraform plan, terraform apply).
+When CodePipeline triggers CodeBuild, it passes the files from the Source Stage (which were pulled from GitHub) into the container launched by CodeBuild.
+The files (including your Terraform .tf files) will be present inside the CodeBuild container in its working directory, so you don't need to manually clone them again.
+Container in CodeBuild:
+
+CodeBuild launches a Docker container for your build process.
+Inside this container, the working directory will contain the cloned files from GitHub (automatically handled by CodePipeline). You can think of it as:
+bash
+Copy
+Edit
+/codebuild/output/srcXXXXXXXXXX/src/  # This directory has all your Terraform files from GitHub
+
+
+
+o provide AWS account details and credentials when using AWS CodeBuild (triggered via AWS CodePipeline) to run Terraform commands that create resources (like an EC2 instance), the AWS credentials can be securely passed to CodeBuild using IAM roles.
+
+Here's how you can configure it:
+
+1. IAM Role for CodeBuild (Best Practice):
+Instead of hardcoding credentials, it's best to use an IAM role for the CodeBuild project. When you attach an IAM role to the CodeBuild project, Terraform can use the permissions of that role to interact with AWS resources (like creating an EC2 instance).
+
+Steps to Assign IAM Role to CodeBuild:
+
+Create an IAM role with permissions to manage the resources (like EC2, S3, etc.) that you need for your Terraform actions.
+In the CodeBuild Project, under the Service role, specify the IAM role you created.
+CodeBuild will automatically use this IAM role when running the terraform plan and terraform apply commands.
+
+ in the setup you've described, the EC2 instance defined in your ec2.tf file will be created in the same AWS account where the CodeBuild project is running
+
+By default, Terraform will create resources (like the EC2 instance) in the same AWS account where the credentials or IAM role is valid. If you're using a CodeBuild service role or AWS credentials environment variables, they are tied to the AWS account where CodeBuild is running.
+
+Terraform will perform an in-place update for the instance type, meaning the existing EC2 instance will be stopped and then restarted with the new instance type. The instance itself will not be destroyed or recreated, but there will be a short downtime as the instance is resized.During the update, the EC2 instance will be temporarily unavailable because Terraform will stop the instance to change the instance type and then restart it.The Terraform state file will be updated to reflect the new instance type (t2.large). This ensures that future Terraform plans and applies are based on the updated configuration.

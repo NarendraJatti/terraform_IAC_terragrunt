@@ -1,0 +1,39 @@
+suppse if i change ec2 instance type = t2.large in the aws console,and the git file has instance type as t2.micro..i want to have the reconicialltin like the argocd provides...how to achieve the reconcilation..means eventhough if i change manuallin the aws console..it should be revert to original state in the git...how to make it paossible?
+ChatGPT said:
+To achieve reconciliation and automatic drift detection, where manual changes made in the AWS Console are automatically reverted to match the desired state specified in the Git repository (like ArgoCD does for Kubernetes resources), you need a GitOps setup for your Terraform deployment. This approach ensures that the infrastructure state defined in your Git repository is always enforced, and any manual changes outside of Git (like in the AWS Console) are reverted.
+
+How to Achieve Reconciliation (GitOps) with Terraform:
+1. Use Terraform with AWS CodePipeline or CodeBuild:
+The goal is to ensure that the infrastructure defined in your Git repository (in this case, the instance type defined in the ec2.tf file) always matches the actual state of your AWS environment, and any manual changes are reverted automatically.
+
+Here's how you can set up the reconciliation:
+
+2. Enable Periodic Terraform Plan and Apply:
+In AWS CodePipeline, set up a schedule to periodically trigger a CodeBuild job that runs Terraform’s plan and apply commands.
+This periodic job checks for any manual changes (drift) in the AWS environment compared to the state file and Terraform code in the Git repository.
+You can set up this schedule using EventBridge (CloudWatch Events) to trigger the pipeline at regular intervals (e.g., every hour, day, etc.).
+
+3. Detect Drift with Terraform Plan:
+Every time the scheduled pipeline runs, the CodeBuild job will execute terraform plan.
+Terraform will detect any changes made manually in AWS (like changing the instance type in the AWS Console) that differ from the desired state in the ec2.tf file.
+If a drift is detected (e.g., the instance type in the AWS Console is t2.large but the desired state in ec2.tf is t2.micro), Terraform will output the differences.
+4. Automatically Revert Changes with Terraform Apply:
+After detecting drift using terraform plan, the next step is to run terraform apply automatically.
+This will apply the changes necessary to revert the infrastructure to match the Git state (in this case, changing the EC2 instance type back to t2.micro).
+Example CodeBuild phase in buildspec.yml:
+
+yaml
+Copy
+Edit
+phases:
+  build:
+    commands:
+      - terraform plan -out=tfplan
+      - terraform apply -auto-approve -input=false tfplan
+5. Set Up Alerts for Manual Changes (Optional):
+You can also set up drift detection alerts to notify you when any manual changes occur. This can be done by configuring notifications (like sending an email or Slack alert) whenever drift is detected during the terraform plan phase.
+
+You can achieve this by analyzing the output of the terraform plan and using AWS services like SNS (Simple Notification Service) to send alerts.
+
+6. Use Terraform Cloud (Optional):
+Another approach is to use Terraform Cloud or Terraform Enterprise, which natively provides drift detection and policy enforcement features. Terraform Cloud can automatically detect when your infrastructure has drifted from the desired state and can also be configured to automatically apply the changes to revert it.
