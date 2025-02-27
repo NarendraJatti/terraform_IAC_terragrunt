@@ -7,6 +7,12 @@ aws iam help
 aws ec2 help
 aws iam create-user help 
 
+gitops for terraform with atlantis
+==================
+https://ruan.dev/blog/2024/08/04/step-by-step-guide-to-setting-up-atlantis-with-gitlab
+https://www.youtube.com/watch?v=ICYhgIK_c8o
+
+
 /root/.aws/config
  /root/.aws/credential
 
